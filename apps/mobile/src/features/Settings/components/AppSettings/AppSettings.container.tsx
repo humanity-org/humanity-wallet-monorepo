@@ -165,7 +165,7 @@ export const AppSettingsContainer = () => {
         {
           label: 'Help center',
           leftIcon: 'question',
-          onPress: () => Linking.openURL('https://help.safe.global/en/'),
+          onPress: () => Linking.openURL('https://safe-support.protofire.io/ '),
           disabled: false,
           type: 'external-link',
         },

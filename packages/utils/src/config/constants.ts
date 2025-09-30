@@ -21,6 +21,7 @@ export const TENDERLY_ORG_NAME =
   process.env.NEXT_PUBLIC_TENDERLY_ORG_NAME || process.env.EXPO_PUBLIC_TENDERLY_ORG_NAME || ''
 
 // Help Center
+export const HELP_CENTER_URL_PROTOFIRE = 'https://safe-support.protofire.io'
 export const HELP_CENTER_URL = 'https://help.safe.global'
 export const HelpCenterArticle = {
   ADDRESS_BOOK_DATA: `${HELP_CENTER_URL}/en/articles/40811-address-book-export-and-import`,

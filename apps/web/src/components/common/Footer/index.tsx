@@ -11,7 +11,7 @@ import ProtofireLogo from '@/public/images/protofire-logo.svg'
 import MUILink from '@mui/material/Link'
 import darkPalette from '@/components/theme/darkPalette'
 //import { useIsOfficialHost } from '@/hooks/useIsOfficialHost'
-import { HELP_CENTER_URL } from '@safe-global/utils/config/constants'
+import { HELP_CENTER_URL_PROTOFIRE } from '@safe-global/utils/config/constants'
 
 const footerPages = [
   AppRoutes.welcome.index,
@@ -69,7 +69,7 @@ const Footer = (): ReactElement | null => {
           <FooterLink href={getHref(AppRoutes.settings.index)}>Preferences</FooterLink>
         </li>
         <li>
-          <ExternalLink href={HELP_CENTER_URL} noIcon sx={{ span: { textDecoration: 'underline' } }}>
+          <ExternalLink href={HELP_CENTER_URL_PROTOFIRE} noIcon sx={{ span: { textDecoration: 'underline' } }}>
             Help
           </ExternalLink>
         </li>
