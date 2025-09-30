@@ -19,6 +19,7 @@ import { HELP_CENTER_URL, IS_PRODUCTION, NEW_SUGGESTION_FORM } from '@/config/co
 import darkPalette from '@/components/theme/darkPalette'
 import SuggestionIcon from '@/public/images/sidebar/lightbulb_icon.svg'
 import ProtofireLogo from '@/public/images/protofire-logo.svg'
+import IndexingStatus from '../IndexingStatus'
 
 const SidebarFooter = (): ReactElement => {
   // const dispatch = useAppDispatch()
@@ -49,7 +50,7 @@ const SidebarFooter = (): ReactElement => {
           <Divider flexItem />
         </>
       )}
-
+      <IndexingStatus />
       <ListItem disablePadding>
         <a
           target="_blank"
