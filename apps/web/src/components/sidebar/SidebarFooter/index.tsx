@@ -50,7 +50,6 @@ const SidebarFooter = (): ReactElement => {
           <Divider flexItem />
         </>
       )}
-      <IndexingStatus />
       <ListItem disablePadding>
         <a
           target="_blank"

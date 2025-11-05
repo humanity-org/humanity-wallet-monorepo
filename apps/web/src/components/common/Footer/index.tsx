@@ -48,7 +48,7 @@ const Footer = (): ReactElement | null => {
     <footer className={css.container}>
       <ul>
         <li>
-          <Typography variant="caption">&copy;2022–{new Date().getFullYear()} Core Contributors GmbH</Typography>
+          <Typography variant="caption">© {new Date().getFullYear()} Humanity Safe</Typography>
         </li>
         <li>
           <FooterLink href={getHref(AppRoutes.terms)}>Terms</FooterLink>
