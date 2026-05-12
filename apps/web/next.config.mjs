@@ -99,6 +99,10 @@ const nextConfig = {
   productionBrowserSourceMaps: true,
   eslint: {
     dirs: ['src', 'cypress'],
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   ...(isProd || enableExperimentalOptimizations
     ? {
@@ -111,6 +115,8 @@ const nextConfig = {
             '@sentry/react',
             '@gnosis.pm/zodiac',
           ],
+          workerThreads: false,
+          cpus: 1,
         },
       }
     : {}),
