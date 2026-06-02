@@ -6,8 +6,6 @@ import WarningIcon from '@/public/images/notifications/warning.svg'
 
 import css from '@/components/common/ErrorBoundary/styles.module.css'
 import CircularIcon from '../icons/CircularIcon'
-import ExternalLink from '../ExternalLink'
-import { PROTOFIRE_SUPPORT_LINK } from '@/config/constants.extra'
 interface ErrorBoundaryProps {
   error: Error
   componentStack: string
@@ -31,14 +29,7 @@ const ErrorBoundary = ({ error, componentStack }: ErrorBoundaryProps) => {
         <CircularIcon icon={WarningIcon} badgeColor="warning" />
 
         {IS_PRODUCTION ? (
-          <Typography
-            sx={{
-              color: 'text.primary',
-            }}
-          >
-            In case the problem persists, please reach out to us via our{' '}
-            <ExternalLink href={PROTOFIRE_SUPPORT_LINK}>Help Center</ExternalLink>
-          </Typography>
+          <Typography sx={{ color: 'text.primary' }}>In case the problem persists, please try again later.</Typography>
         ) : (
           <>
             {/* Error may be undefined despite what the type says */}

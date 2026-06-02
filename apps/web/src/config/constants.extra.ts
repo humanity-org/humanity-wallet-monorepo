@@ -1,33 +1,6 @@
-export const NEW_SUGGESTION_FORM = 'https://safe-feature-request.protofire.io'
-export const TERMS_LINK =
-  process.env.NEXT_PUBLIC_TERMS_LINK ||
-  'https://raw.githubusercontent.com/protofire/safe-legal/refs/heads/main/terms.md'
-export const COOKIE_LINK =
-  process.env.NEXT_PUBLIC_COOKIE_LINK ||
-  'https://raw.githubusercontent.com/protofire/safe-legal/refs/heads/main/cookie.md'
+export const LIFI_WIDGET_URL = process.env.NEXT_PUBLIC_LIFI_WIDGET_URL
 
-export const PROTOFIRE_SUPPORT_LINK = 'https://safe-support.protofire.io'
-
-export const IMPRINT_LINK =
-  process.env.NEXT_PUBLIC_IMPRINT_LINK ||
-  'https://raw.githubusercontent.com/protofire/safe-legal/refs/heads/main/imprint.md'
-
-export const LIFI_WIDGET_URL = process.env.NEXT_PUBLIC_LIFI_WIDGET_URL || 'https://lifi-swap.safe.protofire.io/'
-
-export const OZ_SAFE_UTILS_URL = 'https://safeutils.openzeppelin.com'
-export const PROTOFIRE_SAFE_UTILS_URL = 'https://safeutils.protofire.io'
-
-// Sunset banners per chain ID
-const CROSSFI_SUNSET_BANNER = {
-  title: 'CrossFi Safe Support Sunsetting',
-  description:
-    'Dear users, Support for Safe on CrossFi will end soon. Please withdraw your funds until April 17, 2029.',
-}
-
-export const SUNSET_BANNERS: Record<string, { title: string; description: string }> = {
-  '4158': CROSSFI_SUNSET_BANNER,
-  '4157': CROSSFI_SUNSET_BANNER,
-}
+export const SAFE_UTILS_URL = 'https://safeutils.protofire.io'
 
 // TODO: move to types
 export interface TemplateConfig {

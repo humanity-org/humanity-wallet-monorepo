@@ -11,9 +11,6 @@ import MUILink from '@mui/material/Link'
 import { useIsOfficialHost } from '@/hooks/useIsOfficialHost'
 import { HELP_CENTER_URL } from '@safe-global/utils/config/constants'
 import { BRAND_NAME, IS_PRODUCTION, COMMIT_HASH } from '@/config/constants'
-import ProtofireLogo from '@/public/images/protofire.svg'
-import darkPalette from '@/components/theme/darkPalette'
-import { PROTOFIRE_SUPPORT_LINK } from '@/config/constants.extra'
 import TEMPLATE_CONFIG from '@/config/templateConfig'
 import { findTemplateLink } from '@/utils/templateConfig'
 import DiscordIcon from '@/public/images/common/discord-icon.svg'
@@ -134,9 +131,7 @@ const Footer: React.FC<FooterProps> = ({
               <FooterLink href={getHref(AppRoutes.settings.index)}>Preferences</FooterLink>
             </li>
             <li>
-              <ExternalLink href={PROTOFIRE_SUPPORT_LINK} noIcon sx={{ span: { textDecoration: 'underline' } }}>
-                Help
-              </ExternalLink>
+              <MUILink sx={{ span: { textDecoration: 'underline' } }}>Help</MUILink>
             </li>
           </>
         )}
@@ -146,21 +141,6 @@ const Footer: React.FC<FooterProps> = ({
             {APP_VERSION}
           </ExternalLink>
         </li>
-        <li>
-          <Typography variant="caption">
-            Supported by{' '}
-            <SvgIcon
-              component={ProtofireLogo}
-              inheritViewBox
-              fontSize="small"
-              sx={{ verticalAlign: 'middle', mx: 0.5 }}
-            />
-            <MUILink href="https://protofire.io" sx={{ color: darkPalette.primary.main, textDecoration: 'none' }}>
-              Protofire
-            </MUILink>
-          </Typography>
-        </li>
-
         {!IS_PRODUCTION && COMMIT_HASH && (
           <li>
             <ExternalLink href={`${APP_HOMEPAGE}/commit/${COMMIT_HASH}`} noIcon>

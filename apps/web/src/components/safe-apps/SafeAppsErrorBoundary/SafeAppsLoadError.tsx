@@ -4,8 +4,6 @@ import SvgIcon from '@mui/material/SvgIcon'
 import NetworkError from '@/public/images/apps/network-error.svg'
 
 import css from './styles.module.css'
-import ExternalLink from '@/components/common/ExternalLink'
-import { PROTOFIRE_SUPPORT_LINK } from '@/config/constants.extra'
 
 type SafeAppsLoadErrorProps = {
   onBackToApps: () => void
@@ -19,12 +17,7 @@ const SafeAppsLoadError = ({ onBackToApps }: SafeAppsLoadErrorProps): React.Reac
 
         <SvgIcon component={NetworkError} inheritViewBox className={css.image} />
 
-        <div>
-          <Typography component="span">In case the problem persists, please reach out to us via </Typography>
-          <ExternalLink href={PROTOFIRE_SUPPORT_LINK} fontSize="medium">
-            Form
-          </ExternalLink>
-        </div>
+        <Typography>In case the problem persists, please try again later.</Typography>
 
         <Button href="#back" color="primary" onClick={onBackToApps}>
           Go back to the Safe Apps list
