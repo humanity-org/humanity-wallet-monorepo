@@ -1,0 +1,48 @@
+# Build the Safe wallet UI and publish it to S3 + CloudFront.
+# Reusable publish workflow lives in humanity-org/devops (docs/app-cicd.md,
+# docs/frontend-build-matrix.md).
+name: build-publish
+
+on:
+  push:
+    branches: [staging, production]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: yarn install --immutable
+      # NB: `yarn build` runs fetch-chains first, which queries the config
+      # service — cfg-web must be up and seeded before this build succeeds.
+      - name: Build static export
+        working-directory: apps/web
+        run: yarn build
+        env:
+          NEXT_PUBLIC_IS_PRODUCTION: ${{ github.ref_name == 'production' }}
+          NEXT_PUBLIC_IS_OFFICIAL_HOST: 'true'
+          NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: https://gateway.safe.humanity.org
+          NEXT_PUBLIC_GATEWAY_URL_STAGING: https://gateway.staging.safe.humanity.org
+          NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID: '6985385'
+          NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID: '7080969'
+          NEXT_PUBLIC_SAFE_STATUS_PAGE_URL: ${{ github.ref_name == 'production' && 'https://status.safe.humanity.org' || 'https://status.staging.safe.humanity.org' }}
+          NEXT_PUBLIC_WC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WC_PROJECT_ID }}
+          NEXT_PUBLIC_BRAND_NAME: Humanity Safe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: apps/web/out
+
+  publish:
+    needs: build
+    uses: humanity-org/ci-workflows/.github/workflows/reusable-static-publish.yml@main
+    with:
+      artifact-name: site
+      bucket-name: humanity-safe-${{ github.ref_name }}-ui
+      distribution-id: ${{ github.ref_name == 'production' && vars.SAFE_UI_DIST_ID_PRODUCTION || vars.SAFE_UI_DIST_ID_STAGING }}
+    permissions:
+      id-token: write
