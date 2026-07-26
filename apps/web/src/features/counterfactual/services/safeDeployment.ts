@@ -154,11 +154,24 @@ export const checkSafeActivation = async (
   chainId: string,
   startBlock?: number,
 ) => {
+  // eslint-disable-next-line no-console
+  console.log('[SAFE-CREATE-DEBUG] checkSafeActivation ENTER', {
+    txHash,
+    safeAddress,
+    startBlock,
+    hasProvider: !!provider,
+  })
   try {
     const txResponse = await retryGetTransaction(provider, txHash)
+    // eslint-disable-next-line no-console
+    console.log('[SAFE-CREATE-DEBUG] got txResponse', { block: txResponse.blockNumber, nonce: txResponse.nonce })
 
     const replaceableTx = startBlock ? txResponse.replaceableTransaction(startBlock) : txResponse
+    // eslint-disable-next-line no-console
+    console.log('[SAFE-CREATE-DEBUG] calling wait(1)... (replaceable=' + !!startBlock + ')')
     const receipt = await replaceableTx?.wait(1)
+    // eslint-disable-next-line no-console
+    console.log('[SAFE-CREATE-DEBUG] wait(1) RESOLVED', { status: receipt?.status, block: receipt?.blockNumber })
 
     /** The receipt should always be non-null as we require 1 confirmation */
     if (receipt === null) {
@@ -173,6 +186,8 @@ export const checkSafeActivation = async (
       })
     }
 
+    // eslint-disable-next-line no-console
+    console.log('[SAFE-CREATE-DEBUG] dispatching SUCCESS')
     safeCreationDispatch(SafeCreationEvent.SUCCESS, {
       groupKey: CF_TX_GROUP_KEY,
       safeAddress,
@@ -181,6 +196,8 @@ export const checkSafeActivation = async (
     })
   } catch (err) {
     const _err = err as EthersError
+    // eslint-disable-next-line no-console
+    console.log('[SAFE-CREATE-DEBUG] checkSafeActivation CAUGHT', { reason: _err.reason, message: _err.message })
 
     if (_err.reason === 'replaced' || _err.reason === 'repriced') {
       safeCreationDispatch(SafeCreationEvent.SUCCESS, {
