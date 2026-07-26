@@ -1,5 +1,6 @@
 import FilteredSafes from '../FilteredSafes'
 import PinnedSafes from '../PinnedSafes'
+import AllSafes from '../AllSafes'
 import CurrentSafe from '../CurrentSafe'
 import ConnectWalletPrompt from '../ConnectWalletPrompt'
 import { type AllSafeItems, type AllSafeItemsGrouped, getComparator } from '@/hooks/safes'
@@ -11,12 +12,12 @@ import useSafeSelectionModal from '../../hooks/useSafeSelectionModal'
 import useMigrationPrompt from '../../hooks/useMigrationPrompt'
 import useWallet from '@/hooks/wallets/useWallet'
 import { useMemo, useCallback } from 'react'
-import { Typography } from '@mui/material'
 
 const AccountsList = ({
   searchQuery,
   safes,
   onLinkClick,
+  isSidebar = false,
 }: {
   searchQuery: string
   safes: AllSafeItemsGrouped
@@ -63,13 +64,12 @@ const AccountsList = ({
       <CurrentSafe allSafes={allSafes} onLinkClick={onLinkClick} />
       <PinnedSafes allSafes={allSafes} onLinkClick={onLinkClick} onOpenSelectionModal={modal.open} />
 
-      {!migration.hasPinnedSafes && !migration.shouldShowPrompt && (
-        <Typography data-testid="empty-safe-list" color="text.secondary" variant="body2" textAlign="center" py={3}>
-          You don&apos;t have any safes yet
-        </Typography>
-      )}
+      {/* Owned Safes are listed here so a wallet's Safes are visible without
+          first pinning them (the trusted-list-only view left owned Safes
+          hidden, e.g. right after creation before the pin step). */}
+      <AllSafes allSafes={allSafes} onLinkClick={onLinkClick} isSidebar={isSidebar} />
 
-      {/* Safe selection modal - only way to manage safes */}
+      {/* Safe selection modal - manage the pinned/trusted list */}
       <SafeSelectionModal modal={modal} />
     </>
   )

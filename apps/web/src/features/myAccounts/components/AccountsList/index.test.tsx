@@ -11,6 +11,7 @@ import type { AllSafeItemsGrouped } from '@/hooks/safes'
 // Mock child components to simplify tests, we just need to verify their rendering and props.
 jest.mock('../FilteredSafes', () => jest.fn(() => <div>FilteredSafes Component</div>))
 jest.mock('../PinnedSafes', () => jest.fn(() => <div>PinnedSafes Component</div>))
+jest.mock('../AllSafes', () => jest.fn(() => <div>AllSafes Component</div>))
 
 // Mock wallet - return value can be changed per test
 let mockWalletValue: { address: string } | null = { address: '0x1234567890123456789012345678901234567890' }
