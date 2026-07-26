@@ -48,25 +48,11 @@ const usePendingSafeMonitor = (): void => {
           const isRelaying = status === PendingSafeStatus.RELAYING && taskId !== undefined
           const isMonitored = monitoredSafes.current[safeAddress]
 
-          // eslint-disable-next-line no-console
-          console.log('[SAFE-CREATE-DEBUG] monitor eval', {
-            safeAddress,
-            status,
-            txHash,
-            startBlock,
-            hasProvider: !!provider,
-            isProcessing,
-            isRelaying,
-            isMonitored,
-          })
-
           if ((!isProcessing && !isRelaying) || isMonitored) return
 
           monitoredSafes.current[safeAddress] = true
 
           if (isProcessing) {
-            // eslint-disable-next-line no-console
-            console.log('[SAFE-CREATE-DEBUG] -> calling checkSafeActivation')
             checkSafeActivation(provider, txHash, safeAddress, type, chainId, startBlock)
           }
 
@@ -192,17 +178,6 @@ const usePendingSafeStatus = (): void => {
           return
         }
 
-        // eslint-disable-next-line no-console
-        console.log('[SAFE-CREATE-DEBUG] event received, updating store status', {
-          event,
-          status,
-          detailTxHash: 'txHash' in detail ? detail.txHash : undefined,
-          hasProvider: !!provider,
-        })
-        const startBlockForStatus = await provider?.getBlockNumber()
-        // eslint-disable-next-line no-console
-        console.log('[SAFE-CREATE-DEBUG] getBlockNumber resolved', { startBlockForStatus })
-
         dispatch(
           updateUndeployedSafeStatus({
             chainId: creationChainId,
@@ -211,7 +186,7 @@ const usePendingSafeStatus = (): void => {
               status,
               txHash: 'txHash' in detail ? detail.txHash : undefined,
               taskId: 'taskId' in detail ? detail.taskId : undefined,
-              startBlock: startBlockForStatus,
+              startBlock: await provider?.getBlockNumber(),
               submittedAt: Date.now(),
             },
           }),
