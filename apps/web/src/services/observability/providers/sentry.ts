@@ -1,6 +1,6 @@
 import type { ILogger, IObservabilityProvider } from '../types'
 import * as Sentry from '@sentry/react'
-import { SENTRY_DSN } from '@/config/constants'
+import { SENTRY_DSN, IS_PRODUCTION } from '@/config/constants'
 import packageJson from '../../../../package.json'
 
 const isSentryEnabled = Boolean(SENTRY_DSN)
@@ -18,6 +18,7 @@ export class SentryProvider implements IObservabilityProvider {
     try {
       Sentry.init({
         dsn: SENTRY_DSN,
+        environment: IS_PRODUCTION ? 'production' : 'staging',
         release: `safe-wallet-web@${packageJson.version}`,
         sampleRate: 0.1,
         ignoreErrors: [
