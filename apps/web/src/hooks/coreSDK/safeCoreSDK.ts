@@ -42,8 +42,25 @@ export const initSafeSDK = async ({
     const safeL1Deployment = getSafeSingletonDeployments({ network: chainId, version: safeVersion })
     const safeL2Deployment = getSafeL2SingletonDeployments({ network: chainId, version: safeVersion })
 
-    isL1SafeSingleton = isInDeployments(masterCopy, safeL1Deployment?.networkAddresses[chainId])
-    const isL2SafeMasterCopy = isInDeployments(masterCopy, safeL2Deployment?.networkAddresses[chainId])
+    // safe-deployments v2 stores deployment TYPE keys (e.g. "canonical") in
+    // networkAddresses[chainId], not addresses. Resolve them to real addresses
+    // via `deployments` before the membership check, otherwise a canonical
+    // master copy is never recognized -> the SDK falls into the custom-network
+    // path with an incomplete contractNetworks -> "Invalid multiSend contract
+    // address" for any Safe not yet indexed on the chain.
+    const resolveDeploymentAddresses = (
+      deployment: ReturnType<typeof getSafeL2SingletonDeployments>,
+    ): string[] => {
+      const types = deployment?.networkAddresses[chainId]
+      const typeList = Array.isArray(types) ? types : types ? [types] : []
+      const deployments = deployment?.deployments as Record<string, { address: string } | undefined> | undefined
+      return typeList
+        .map((type) => deployments?.[type]?.address)
+        .filter((address): address is string => Boolean(address))
+    }
+
+    isL1SafeSingleton = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL1Deployment))
+    const isL2SafeMasterCopy = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL2Deployment))
 
     if (!isL1SafeSingleton && !isL2SafeMasterCopy) {
       try {
