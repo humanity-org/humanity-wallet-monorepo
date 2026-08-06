@@ -13419,10 +13419,10 @@ __metadata:
 
 "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.52#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.52-23ec2850e2.patch":
   version: 1.37.52
-  resolution: "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.52#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.52-23ec2850e2.patch::version=1.37.52&hash=853780"
+  resolution: "@safe-global/safe-deployments@patch:@safe-global/safe-deployments@npm%3A1.37.52#~/.yarn/patches/@safe-global-safe-deployments-npm-1.37.52-23ec2850e2.patch::version=1.37.52&hash=61d6e7"
   dependencies:
     semver: "npm:^7.6.2"
-  checksum: 10/e65ffe30a3565f8eb63bbca89e26d14796d18645232f26e8e3e2466df46e4785f110d70e086852ebc5e0f1de43804e084ef952ca1c5404e02ceddd3a029499ba
+  checksum: 10/c6d637c7cec91d1e15eab62be6dd1e0a9c5ebb1ea12458e46389a57e1f6765fda54067fa117881215e7f5495fb9b0e897bb16d02c923d3c9ad826ca1a34513fe
   languageName: node
   linkType: hard
 
