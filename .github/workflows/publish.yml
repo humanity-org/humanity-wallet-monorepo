@@ -27,7 +27,7 @@ jobs:
           NEXT_PUBLIC_IS_OFFICIAL_HOST: 'true'
           NEXT_PUBLIC_GATEWAY_URL_PRODUCTION: https://gateway.safe.humanity.org
           NEXT_PUBLIC_GATEWAY_URL_STAGING: https://gateway.staging.safe.humanity.org
-          NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID: '6985385'
+          NEXT_PUBLIC_DEFAULT_MAINNET_CHAIN_ID: '13600000'
           NEXT_PUBLIC_DEFAULT_TESTNET_CHAIN_ID: '7080969'
           NEXT_PUBLIC_SAFE_STATUS_PAGE_URL: ${{ github.ref_name == 'production' && 'https://status.safe.humanity.org' || 'https://status.staging.safe.humanity.org' }}
           NEXT_PUBLIC_WC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WC_PROJECT_ID }}
