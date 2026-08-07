@@ -35,21 +35,6 @@ export const initSafeSDK = async ({
   let isL1SafeSingleton = chainId === chains.eth
   let contractNetworks: ContractNetworksConfig | undefined
 
-  // eslint-disable-next-line no-console
-  console.log(
-    '[SDK-DBG] init',
-    JSON.stringify({
-      chainId,
-      address,
-      version,
-      safeVersion,
-      implementationVersionState,
-      implementation,
-      undeployed: !!undeployedSafe,
-      isValidMC: isValidMasterCopy(implementationVersionState),
-    }),
-  )
-
   // If it is an official deployment we should still initiate the safeSDK
   if (!isValidMasterCopy(implementationVersionState)) {
     const masterCopy = implementation
@@ -63,9 +48,7 @@ export const initSafeSDK = async ({
     // master copy is never recognized -> the SDK falls into the custom-network
     // path with an incomplete contractNetworks -> "Invalid multiSend contract
     // address" for any Safe not yet indexed on the chain.
-    const resolveDeploymentAddresses = (
-      deployment: ReturnType<typeof getSafeL2SingletonDeployments>,
-    ): string[] => {
+    const resolveDeploymentAddresses = (deployment: ReturnType<typeof getSafeL2SingletonDeployments>): string[] => {
       const types = deployment?.networkAddresses[chainId]
       const typeList = Array.isArray(types) ? types : types ? [types] : []
       const deployments = deployment?.deployments as Record<string, { address: string } | undefined> | undefined
@@ -76,20 +59,6 @@ export const initSafeSDK = async ({
 
     isL1SafeSingleton = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL1Deployment))
     const isL2SafeMasterCopy = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL2Deployment))
-
-    // eslint-disable-next-line no-console
-    console.log(
-      '[SDK-DBG] block39',
-      JSON.stringify({
-        masterCopy,
-        l1NetAddr: safeL1Deployment?.networkAddresses[chainId],
-        l2NetAddr: safeL2Deployment?.networkAddresses[chainId],
-        l1Resolved: resolveDeploymentAddresses(safeL1Deployment),
-        l2Resolved: resolveDeploymentAddresses(safeL2Deployment),
-        isL1SafeSingleton,
-        isL2SafeMasterCopy,
-      }),
-    )
 
     if (!isL1SafeSingleton && !isL2SafeMasterCopy) {
       try {
@@ -146,51 +115,41 @@ export const initSafeSDK = async ({
     contractNetworks,
   })
 
-  // eslint-disable-next-line no-console
-  console.log(
-    '[SDK-DBG] preInit',
-    JSON.stringify({
-      safeVersion,
-      isL1SafeSingleton,
-      contractNetworks,
-      branch: undeployedSafe
-        ? isPredictedSafeProps(undeployedSafe.props)
-          ? 'predictedSafe'
-          : isReplayedSafeProps(undeployedSafe.props)
-            ? 'replayed'
-            : 'other'
-        : 'deployed',
-    }),
-  )
+  if (undeployedSafe) {
+    if (isPredictedSafeProps(undeployedSafe.props) || isReplayedSafeProps(undeployedSafe.props)) {
+      // Replayed Safes keep `safeVersion` at the top level, but protocol-kit reads the
+      // version from `safeDeploymentConfig.safeVersion`. When it's missing protocol-kit
+      // falls back to DEFAULT_SAFE_VERSION (1.3.0) and resolves 1.3.0 contracts, which
+      // are not deployed/registered on chains that only ship 1.4.1 (e.g. Humanity
+      // mainnet) -> "Invalid multiSend contract address". Map replayed props to a proper
+      // predictedSafe so the real Safe version is used.
+      const predictedSafe = isReplayedSafeProps(undeployedSafe.props)
+        ? {
+            safeAccountConfig: undeployedSafe.props.safeAccountConfig,
+            safeDeploymentConfig: {
+              saltNonce: undeployedSafe.props.saltNonce,
+              safeVersion: undeployedSafe.props.safeVersion,
+            },
+          }
+        : undeployedSafe.props
 
-  try {
-    if (undeployedSafe) {
-      if (isPredictedSafeProps(undeployedSafe.props) || isReplayedSafeProps(undeployedSafe.props)) {
-        return await Safe.init({
-          provider: provider._getConnection().url,
-          isL1SafeSingleton,
-          ...(contractNetworks ? { contractNetworks } : {}),
-          predictedSafe: undeployedSafe.props,
-        })
-      }
-      // We cannot initialize a Core SDK for replayed Safes yet.
-      return
+      return Safe.init({
+        provider: provider._getConnection().url,
+        isL1SafeSingleton,
+        ...(contractNetworks ? { contractNetworks } : {}),
+        predictedSafe,
+      })
     }
 
-    return await Safe.init({
-      provider: provider._getConnection().url,
-      safeAddress: address,
-      isL1SafeSingleton,
-      ...(contractNetworks ? { contractNetworks } : {}),
-    })
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(
-      '[SDK-DBG] Safe.init FAILED',
-      JSON.stringify({ safeVersion, isL1SafeSingleton, contractNetworks, err: (e as Error)?.message }),
-    )
-    throw e
+    return
   }
+
+  return Safe.init({
+    provider: provider._getConnection().url,
+    safeAddress: address,
+    isL1SafeSingleton,
+    ...(contractNetworks ? { contractNetworks } : {}),
+  })
 }
 
 export const {
