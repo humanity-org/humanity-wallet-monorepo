@@ -42,8 +42,23 @@ export const initSafeSDK = async ({
     const safeL1Deployment = getSafeSingletonDeployments({ network: chainId, version: safeVersion })
     const safeL2Deployment = getSafeL2SingletonDeployments({ network: chainId, version: safeVersion })
 
-    isL1SafeSingleton = isInDeployments(masterCopy, safeL1Deployment?.networkAddresses[chainId])
-    const isL2SafeMasterCopy = isInDeployments(masterCopy, safeL2Deployment?.networkAddresses[chainId])
+    // safe-deployments v2 stores deployment TYPE keys (e.g. "canonical") in
+    // networkAddresses[chainId], not addresses. Resolve them to real addresses
+    // via `deployments` before the membership check, otherwise a canonical
+    // master copy is never recognized -> the SDK falls into the custom-network
+    // path with an incomplete contractNetworks -> "Invalid multiSend contract
+    // address" for any Safe not yet indexed on the chain.
+    const resolveDeploymentAddresses = (deployment: ReturnType<typeof getSafeL2SingletonDeployments>): string[] => {
+      const types = deployment?.networkAddresses[chainId]
+      const typeList = Array.isArray(types) ? types : types ? [types] : []
+      const deployments = deployment?.deployments as Record<string, { address: string } | undefined> | undefined
+      return typeList
+        .map((type) => deployments?.[type]?.address)
+        .filter((address): address is string => Boolean(address))
+    }
+
+    isL1SafeSingleton = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL1Deployment))
+    const isL2SafeMasterCopy = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL2Deployment))
 
     if (!isL1SafeSingleton && !isL2SafeMasterCopy) {
       try {
@@ -102,14 +117,30 @@ export const initSafeSDK = async ({
 
   if (undeployedSafe) {
     if (isPredictedSafeProps(undeployedSafe.props) || isReplayedSafeProps(undeployedSafe.props)) {
+      // Replayed Safes keep `safeVersion` at the top level, but protocol-kit reads the
+      // version from `safeDeploymentConfig.safeVersion`. When it's missing protocol-kit
+      // falls back to DEFAULT_SAFE_VERSION (1.3.0) and resolves 1.3.0 contracts, which
+      // are not deployed/registered on chains that only ship 1.4.1 (e.g. Humanity
+      // mainnet) -> "Invalid multiSend contract address". Map replayed props to a proper
+      // predictedSafe so the real Safe version is used.
+      const predictedSafe = isReplayedSafeProps(undeployedSafe.props)
+        ? {
+            safeAccountConfig: undeployedSafe.props.safeAccountConfig,
+            safeDeploymentConfig: {
+              saltNonce: undeployedSafe.props.saltNonce,
+              safeVersion: undeployedSafe.props.safeVersion,
+            },
+          }
+        : undeployedSafe.props
+
       return Safe.init({
         provider: provider._getConnection().url,
         isL1SafeSingleton,
         ...(contractNetworks ? { contractNetworks } : {}),
-        predictedSafe: undeployedSafe.props,
+        predictedSafe,
       })
     }
-    // We cannot initialize a Core SDK for replayed Safes yet.
+
     return
   }
 
