@@ -35,6 +35,21 @@ export const initSafeSDK = async ({
   let isL1SafeSingleton = chainId === chains.eth
   let contractNetworks: ContractNetworksConfig | undefined
 
+  // eslint-disable-next-line no-console
+  console.log(
+    '[SDK-DBG] init',
+    JSON.stringify({
+      chainId,
+      address,
+      version,
+      safeVersion,
+      implementationVersionState,
+      implementation,
+      undeployed: !!undeployedSafe,
+      isValidMC: isValidMasterCopy(implementationVersionState),
+    }),
+  )
+
   // If it is an official deployment we should still initiate the safeSDK
   if (!isValidMasterCopy(implementationVersionState)) {
     const masterCopy = implementation
@@ -61,6 +76,20 @@ export const initSafeSDK = async ({
 
     isL1SafeSingleton = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL1Deployment))
     const isL2SafeMasterCopy = isInDeployments(masterCopy, resolveDeploymentAddresses(safeL2Deployment))
+
+    // eslint-disable-next-line no-console
+    console.log(
+      '[SDK-DBG] block39',
+      JSON.stringify({
+        masterCopy,
+        l1NetAddr: safeL1Deployment?.networkAddresses[chainId],
+        l2NetAddr: safeL2Deployment?.networkAddresses[chainId],
+        l1Resolved: resolveDeploymentAddresses(safeL1Deployment),
+        l2Resolved: resolveDeploymentAddresses(safeL2Deployment),
+        isL1SafeSingleton,
+        isL2SafeMasterCopy,
+      }),
+    )
 
     if (!isL1SafeSingleton && !isL2SafeMasterCopy) {
       try {
@@ -117,25 +146,51 @@ export const initSafeSDK = async ({
     contractNetworks,
   })
 
-  if (undeployedSafe) {
-    if (isPredictedSafeProps(undeployedSafe.props) || isReplayedSafeProps(undeployedSafe.props)) {
-      return Safe.init({
-        provider: provider._getConnection().url,
-        isL1SafeSingleton,
-        ...(contractNetworks ? { contractNetworks } : {}),
-        predictedSafe: undeployedSafe.props,
-      })
-    }
-    // We cannot initialize a Core SDK for replayed Safes yet.
-    return
-  }
+  // eslint-disable-next-line no-console
+  console.log(
+    '[SDK-DBG] preInit',
+    JSON.stringify({
+      safeVersion,
+      isL1SafeSingleton,
+      contractNetworks,
+      branch: undeployedSafe
+        ? isPredictedSafeProps(undeployedSafe.props)
+          ? 'predictedSafe'
+          : isReplayedSafeProps(undeployedSafe.props)
+            ? 'replayed'
+            : 'other'
+        : 'deployed',
+    }),
+  )
 
-  return Safe.init({
-    provider: provider._getConnection().url,
-    safeAddress: address,
-    isL1SafeSingleton,
-    ...(contractNetworks ? { contractNetworks } : {}),
-  })
+  try {
+    if (undeployedSafe) {
+      if (isPredictedSafeProps(undeployedSafe.props) || isReplayedSafeProps(undeployedSafe.props)) {
+        return await Safe.init({
+          provider: provider._getConnection().url,
+          isL1SafeSingleton,
+          ...(contractNetworks ? { contractNetworks } : {}),
+          predictedSafe: undeployedSafe.props,
+        })
+      }
+      // We cannot initialize a Core SDK for replayed Safes yet.
+      return
+    }
+
+    return await Safe.init({
+      provider: provider._getConnection().url,
+      safeAddress: address,
+      isL1SafeSingleton,
+      ...(contractNetworks ? { contractNetworks } : {}),
+    })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(
+      '[SDK-DBG] Safe.init FAILED',
+      JSON.stringify({ safeVersion, isL1SafeSingleton, contractNetworks, err: (e as Error)?.message }),
+    )
+    throw e
+  }
 }
 
 export const {
